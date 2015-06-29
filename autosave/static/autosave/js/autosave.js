@@ -68,7 +68,7 @@ var DjangoAutosave = (window.DjangoAutosave) ? DjangoAutosave : {};
         e.preventDefault();
 
         // Generate new form data
-        var $form = $('form');
+        var $form = $('form[action=]'); //get the form that is submitting to '.'
         var data = DjangoAutosave.retrieve();
 
         // Disable the existing form
@@ -255,6 +255,12 @@ var DjangoAutosave = (window.DjangoAutosave) ? DjangoAutosave : {};
     };
 
     DjangoAutosave.captureForm = function() {
+        $('textarea').each(function () {
+            var $textarea = $(this);
+            var editor = CKEDITOR.instances[$textarea.attr('id')];
+            if (!editor) { return }
+            $textarea.val(editor.getData());
+        });
         var $form = $('form');
         var $fields = $form.find(':input:not([name="csrfmiddlewaretoken"])');
         var field_list = [];
