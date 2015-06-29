@@ -66,9 +66,11 @@ var DjangoAutosave = (window.DjangoAutosave) ? DjangoAutosave : {};
     // Regenerates the form to submit old data, and posts it.
     $(document).on('click', '[href=#revert-to-autosaved]', function(e) {
         e.preventDefault();
-
         // Generate new form data
-        var $form = $('form[action=]'); //get the form that is submitting to '.'
+        var $form = $('form').filter(function() {
+          var action = $(this).attr('action');
+          return !action || action[0] == '.' || action[0] =='?';
+        }); //get the form that is submitting to '.'
         var data = DjangoAutosave.retrieve();
 
         // Disable the existing form
