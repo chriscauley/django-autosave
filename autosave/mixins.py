@@ -2,7 +2,7 @@ import time
 import json
 import functools
 import textwrap
-from datetime import datetime
+import pytz
 from urlparse import urlparse
 
 from django import forms
@@ -15,6 +15,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.util import ErrorDict
 from django.http import HttpResponse, Http404
+from django.utils import timezone
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -100,7 +101,7 @@ class AdminAutoSaveMixin(object):
                 updated = getattr(obj, self.autosave_last_modified_field, None)
                 # Make sure date modified time doesn't predate Unix-time.
                 # I'm pretty confident they didn't do any Django autosaving in 1969.
-                updated = max(updated, datetime(year=1970, month=1, day=1))
+                updated = max(updated, timezone.datetime(year=1970, month=1, day=1,tzinfo=pytz.timezone('UTC')))
 
         if obj and not self.has_change_permission(request, obj):
             raise PermissionDenied
@@ -110,7 +111,7 @@ class AdminAutoSaveMixin(object):
         js_vars = {
             'autosave_url': autosave_url,
             'is_add_view': not(object_id),
-            'server_time_epoch': time.mktime(datetime.now().timetuple()),
+            'server_time_epoch': time.mktime(timezone.now().timetuple()),
             'last_updated_epoch': time.mktime(updated.timetuple()) if updated else None,
             'is_recovered_autosave': bool(request.GET.get('is_recovered')),
         }
